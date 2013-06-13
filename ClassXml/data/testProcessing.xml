@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testProcessing>
+  <enfant drole="96" pene="test string" test="3.0">empty</enfant>
+  <enfant drole="92" pene="test string" test="3.0">empty</enfant>
+  <enfant drole="43" pene="test string" test="3.0">empty</enfant>
+  <enfant drole="88" pene="test string" test="3.0">empty</enfant>
+  <enfant drole="99" pene="test string" test="3.0">empty</enfant>
+  <enfant drole="46" pene="test string" test="3.0">empty</enfant>
+  <enfant drole="89" pene="test string" test="3.0">empty</enfant>
+  <enfant drole="47" pene="test string" test="3.0">empty</enfant>
+  <enfant drole="43" pene="test string" test="3.0">empty</enfant>
+  <enfant drole="53" pene="test string" test="3.0">empty</enfant>
+  <testName drole="55" pene="test string" test="3.0">empty</testName>
+</testProcessing>
