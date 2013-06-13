@@ -1,3 +1,5 @@
+//Class Module for Processing by Fabax 
+
 public class Module
 {
 	float nSections = 0;
