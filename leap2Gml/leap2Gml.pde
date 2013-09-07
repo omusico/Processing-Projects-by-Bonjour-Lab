@@ -1,3 +1,7 @@
+// Leap2Gml
+// turn your leap motion information into a gml file
+// Author : fabien bonnamy
+
 import de.voidplus.leapmotion.*;
 import org.apache.log4j.PropertyConfigurator;
 import toxi.math.conversion.*;
@@ -31,15 +35,10 @@ import gml4u.model.*;
 import java.util.*;
 
 
-int     f_id         ;
 PVector f_position   ;
-PVector f_stabilized ;
-PVector f_velocity   ;
 PVector f_direction  ;
-float   f_time       ;
 Vec3D canvas;
 Vec3D v ;
-Vec3D oldv ;
 LeapMotion leap;
 int fingerNumber = 0;
 // Declare a GML recorder object
@@ -49,16 +48,15 @@ GmlParser parser;
 GmlSaver saver;
 GmlBrushManager brushManager;
 float scale;
-int playGrafiti = 0;
 Gml gml;
 Timer timer = new Timer();
 Timer recordTimer = new Timer();
 
 // triggers
-boolean isTouching = false; // switch on and off the recorder
-boolean isRecording = false;
+boolean isTouching = false; // switch the recorder on and off 
+boolean isRecording = false; 
 boolean isDrawing = false;
-boolean firstTurnAnimation = true;
+boolean playGrafiti = false; // switch wetween the record and the verification
 
 void setup() {
   size(800, 500, P3D);
@@ -84,19 +82,9 @@ void draw() {
       if(fingerNumber < 1){
           // Basics
       finger.draw();
-      f_id         = finger.getId();
       f_position   = finger.getPosition();
-      f_stabilized = finger.getStabilizedPosition();
-      f_velocity   = finger.getVelocity();
       f_direction  = finger.getDirection();
-      f_time       = finger.getTimeVisible();
 
-      // pushMatrix();
-      // translate(hand_position.x, hand_position.y, hand_position.z);
-      // float rotation = PVector.angleBetween(hand_position, f_position);
-      // println("rotation: "+rotation);
-      // line(hand_position.x, hand_position.y, hand_position.z, f_position.x, f_position.y, f_position.z);
-      // popMatrix();
       if (f_position.z > 30) {
         if (isTouching ==  false) {
           startRecording();
@@ -117,10 +105,10 @@ void draw() {
   } // stop hand detection ______
 
   //display grafiti
-  if (playGrafiti == 1) {
-    displayAnimation();
+  if (playGrafiti == true) {
+    showGmlVerification();
   } 
-  else if (playGrafiti == 0) {
+  else if (playGrafiti == false) {
     displayRecorder();
   }
 
@@ -128,8 +116,7 @@ void draw() {
   text("recordTimer"+recordTimer.getTime(), 20, 20);
   text("S : saving the gml", 20, 40);
   text("G : load the gml", 20, 60);
-  text("P : Play the animation", 20, 80);
-  text("L : Display stroke path", 20, 100);
+  text("P : Check the gml", 20, 80);
 }
 
 void gmlSetups() {
@@ -204,16 +191,16 @@ void displayRecorder() {
   }
 }
 
-void displayAnimation() {
+void showGmlVerification() {
   if (isDrawing == false) {
     timer.reset();
     isDrawing = true;
   }  
   timer.tick(1);
-  animation1();
+  animation();
 }
 
-void animation1() {
+void animation() {
   
   for (GmlStroke strok : gml.getStrokes()) {
     for (GmlPoint p : strok.getPoints()) {
@@ -221,43 +208,15 @@ void animation1() {
       if (p.time > timer.getTime()){
         continue;
       }
-      
       v = new Vec3D(p);
-      v.scaleSelf(width);
-      fill(77,12,26);
-       //line(oldv.x, oldv.y, oldv.z, v.x, v.y, v.z);
-      ellipse(v.x, v.y, 20, 20);
+      v.scaleSelf(scale);
+       stroke(10, 30);
+    fill(0, 30);
+      ellipse(v.x, v.y, 10, 10);
     }
   }
 }
 
-void animation2() {
-  
-  for (GmlStroke strok : gml.getStrokes()) {
-    for (GmlPoint p : strok.getPoints()) {
-
-      if (p.time > timer.getTime()) {
-
-        continue;
-      }
-      v = new Vec3D(p);
-      if(firstTurnAnimation == true){
-        oldv = new Vec3D(p);
-        firstTurnAnimation = false;
-      }
-
-      v.scaleSelf(width);
-      oldv.scaleSelf(width);
-      fill(77,12,26);
-  
-      line(oldv.x, oldv.y, oldv.z, v.x, v.y, v.z);
-
-      if(firstTurnAnimation == false){
-        oldv = new Vec3D(p);
-      }
-    }
-  }
-}
 //----------------------------------
 
 void loadGml() {
@@ -269,22 +228,20 @@ void keyPressed() {
   if (key == 's' || key == 'S') {
     saver.save(recorder.getGml(), sketchPath+"/gml.xml");
   }
-  else if (key == 'l' || key == 'L') {
-    parser.parse(sketchPath+"/gml.xml", false);
-  }
   else if (key == ' ') {
     recorder.clear();
     recordTimer.reset();
+    isRecording = false;
   }
   else if (key == 'p' || key == 'P') {
-    if (playGrafiti == 0) {
-      playGrafiti = 1;
+    if (playGrafiti == false) {
+      playGrafiti = true;
     }
-    else if (playGrafiti == 1) {
-      playGrafiti = 0;
+    else if (playGrafiti == true) {
+      playGrafiti = false;
     }
   }
-  else if (key == 'g') {
+  else if (key == 'g'|| key == 'G') {
     loadGml();
   }
 }
